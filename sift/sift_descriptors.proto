@@ -1,0 +1,51 @@
+package sjm.sift;
+
+message ExtractionParameters {
+  optional bool rotation_invariance = 1 [default = false];
+  optional float normalization_threshold = 2 [default = 0];
+  optional bool discard_unnormalized = 3 [default = false];
+  optional bool multiscale = 4 [default = true];
+  optional uint32 deprecated_steps_per_octave = 5 [default = 3];
+  optional float percentage = 6 [default = 1];
+  optional float minimum_radius = 7 [default = 0];
+  optional bool fractional_xy = 8 [default = false];
+  optional uint32 deprecated_resolution_factor = 9 [default = 2];
+  optional uint32 top_left_x = 10 [default = 0];
+  optional uint32 top_left_y = 11 [default = 0];
+  optional uint32 bottom_right_x = 12 [default = 2147483647];
+  optional uint32 bottom_right_y = 13 [default = 2147483647];
+
+  enum ExtractionImplementation {
+    DEPRECATED_SANCHO = 0;
+    VLFEAT = 1;
+    KOEN = 2;
+  }
+
+  optional ExtractionImplementation implementation = 14 [default = VLFEAT];
+  optional bool smoothed = 15 [default = true];
+  optional float first_level_smoothing = 16 [default = 0.6666666];
+  optional bool fast = 17 [default = true];
+
+  enum SpatialGridMethod {
+    FIXED_3X3 = 0;
+    SCALED_3X3 = 1;
+    SCALED_BIN_WIDTH = 2;
+    SCALED_DOUBLE_BIN_WIDTH = 3;
+    FIXED_8X8 = 4;
+  }
+  
+  optional SpatialGridMethod grid_method = 18 [default = FIXED_3X3];
+}
+
+message SiftDescriptor {
+  repeated uint32 bin = 1; // Code must limit values in this field to [0,127]
+  optional float x = 2;
+  optional float y = 3;
+  optional float scale = 4;
+  optional bool valid = 5 [default = true];
+}
+
+message DescriptorSet {
+  required ExtractionParameters parameters = 1;
+  repeated SiftDescriptor sift_descriptor = 2;
+}

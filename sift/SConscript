@@ -1,0 +1,76 @@
+import os
+
+Import('env')
+Import('test_env')
+protobuf_env = env.Clone()
+env = env.Clone()
+
+binary_prefix = ARGUMENTS.get('BIN_PREFIX', '/usr/local/bin/')
+
+protobuf_env.ProtoPy('sift_descriptors.proto')
+protobuf_env.ProtoCc('sift_descriptors.proto')
+protobuf_env.ProtoH('sift_descriptors.proto')
+
+library_env = env.Clone()
+library_env.Append(LIBS =
+                ['opencv_core', 'opencv_highgui',
+                 'png', 'jpeg', 'jasper', 'tiff',
+                 'protobuf',
+                 'vl'])
+library_env.StaticLibrary('sift_lib',
+                  ['vlfeat_extractor.cc',
+                   'sift_util.cc',
+                   'sift_descriptors.pb.cc'])
+
+test_env.Append(LIBS =
+                ['sift_lib',
+                 'opencv_imgproc',
+		 'opencv_core', 'opencv_highgui',
+                 'png', 'jpeg', 'jasper', 'tiff',
+                 'vl',
+                 'protoc',
+                 'rt',
+                 'boost_system-mt'])
+
+test_env.Program('vlsift_test.cc')
+test_env.Program('sift_util_test.cc')
+
+
+env.Append(LIBS = ['sift_lib',
+		   'opencv_imgproc',
+                   'opencv_core', 'opencv_highgui',
+                   'protobuf',
+                   'boost_program_options-mt',
+                   'boost_filesystem-mt',
+                   'boost_thread-mt',
+                   'boost_system-mt',
+                   'vl',
+                   'png',
+                   'jpeg',
+                   'jasper',
+                   'tiff',
+                   ])
+
+env.Program(['get_descriptor_info_cli.cc'])
+
+static = ARGUMENTS.get('static', 0)
+if int(static):
+    env.Append(LIBS = ['rt',
+                       'pthread',
+                       'z',
+                       ])
+    static_env = env.Clone(LINKFLAGS='--static')
+    static_obj = \
+        static_env.Object('extract_descriptors_cli-static',
+                          'extract_descriptors_cli.cc')
+    prog = static_env.Program(static_obj)
+    static_env.Install(binary_prefix, prog)
+    static_env.Alias('install', binary_prefix)
+else:
+    shared_env = env.Clone()
+    shared_obj = \
+        shared_env.Object('extract_descriptors_cli',
+                          'extract_descriptors_cli.cc')
+    prog = shared_env.Program(shared_obj)
+    shared_env.Install(binary_prefix, prog)
+    shared_env.Alias('install', binary_prefix)

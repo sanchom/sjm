@@ -1,0 +1,10 @@
+Description:
+- extract sift from the dataset (Caltech 101, for example)
+- split into training and test set
+- optionally, learn curves for each class, score method, and method parameter
+- store training features in flann indices
+- classify the test set using the NBNN baseline equivilant or one of the learned curves
+- option for discarding log_odds contributions below a particular threshold
+
+experiment_1.py works on caltech101
+experiment_1_256.py works on caltech256

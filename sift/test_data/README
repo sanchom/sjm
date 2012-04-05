@@ -1,0 +1,17 @@
+Glass_is_Liquide.sift
+seminar.sift
+
+These are just two sift files of the following binary format:
+<length of serialized parameter protobuf> (4-byte integer)
+<serialized parameter protobuf> (length specified by previous)
+<length of serialized descriptorset protobuf> (4-byte integer)
+<serialized descriptorset protobuf> (length specified by previous)
+
+seminar.old-sift
+
+This file is a previous format file without the parameter header. It's
+just the serialized descriptorset protobuf. You can just do:
+descriptor_set.ParseFromString(open('seminar.old-sift', 'rb').read())
+
+This format is depricated, but this file is around just to test a
+converter function.

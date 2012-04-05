@@ -1,0 +1,4 @@
+Import('test_env')
+
+test_env.Program('util_test.cc')
+           
