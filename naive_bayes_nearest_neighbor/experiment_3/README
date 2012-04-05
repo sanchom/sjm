@@ -1,4 +1,0 @@
-Description:
-- extract sift from the dataset (Caltech 101, for example)
-- merge
-- classify the test set using the merged dataset
