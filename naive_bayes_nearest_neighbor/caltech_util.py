@@ -32,6 +32,7 @@ class ImageNotFoundError(CaltechUtilError):
     """ Raise when an image for sift extraction was not found. """
     pass
 
+# TODO(sanchom): Test this function.
 def build_extraction_list(caltech_image_directory, target_data_directory):
     """ Builds a list of image files and associated sift directories
     

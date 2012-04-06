@@ -15,18 +15,6 @@ class TestCaltechHelperFunctions(unittest.TestCase):
         if os.path.exists('/tmp/seminar.sift'):
             os.remove('/tmp/seminar.sift')
 
-    def test_extraction_list(self):
-        """ Tests creation of extraction list for the caltech dataset. """
-        caltech_data = '/lci/project/lowe/sanchom/101_ObjectCategories-128'
-        caltech_local = '/var/tmp/sanchom/caltech_local'
-        extraction_list = caltech_util.build_extraction_list(caltech_data, caltech_local)
-
-        for (original_file, target_directory) in extraction_list:
-            self.assertTrue(os.path.isfile(original_file))
-            original_directory_relative = os.path.dirname(original_file).replace(caltech_data, "")
-            target_directory_relative = target_directory.replace(caltech_local, "")
-            self.assertEqual(original_directory_relative, target_directory_relative)
-
     def test_do_extraction_produces_output(self):
         """ Tests working case do_extraction """
         image_path = os.path.abspath('../test_images/seminar.pgm')
