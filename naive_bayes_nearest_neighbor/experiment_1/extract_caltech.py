@@ -6,16 +6,17 @@ import os
 import sys
 
 from naive_bayes_nearest_neighbor import caltech_util
-from naive_bayes_nearest_neighbor import nbnn_classifier
 from sift import sift_descriptors_pb2
 from sift import sift_util
 
 def main():
     parser = OptionParser()
-    parser.add_option('--caltech_256',
-                      action='store_true', dest='caltech_256', default=False)
-    parser.add_option('--caltech_101',
-                      action='store_false', dest='caltech_256', default=False)
+    # This option points to the root directory of the image
+    # dataset. Under the root directory should be category
+    # directories, one per category, with images inside of them.
+    parser.add_option('--dataset_path',
+                      dest='dataset_path', default='',
+                      help='A path to the root directory of the image dataset.')
     parser.add_option('--process_limit',
                       type='int', dest='process_limit', default=1,
                       help='The number of processors to use during extraction.')
@@ -94,11 +95,7 @@ def main():
         sys.exit(1)
 
     # Get lists of extractions to do.
-    if options.caltech_256:
-        caltech_data = '/lci/project/lowe/sanchom/256_ObjectCategories-Boiman'
-    else:
-        caltech_data = '/lci/project/lowe/sanchom/101_ObjectCategories-Boiman'
-
+    caltech_data = options.dataset_path
     extraction_list = caltech_util.build_extraction_list(
         caltech_data, options.features_directory)
     caltech_util.do_extraction_on_list(extraction_list,

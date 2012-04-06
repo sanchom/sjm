@@ -73,9 +73,6 @@ def do_extraction_on_list(extraction_list, extraction_parameters=None,
 
     # Check paths for extraction app and destination directories
     extract_descriptors_cli = 'extract_descriptors_cli'
-    if (not os.path.exists(extract_descriptors_cli)):
-        print "%s not found" % extract_descriptors_cli
-        sys.exit()
     for (_, directory) in extraction_list:
         if (not os.path.exists(directory)):
             os.makedirs(directory)
