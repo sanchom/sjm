@@ -28,7 +28,8 @@ test_env.Append(LIBS =
 		 'opencv_core', 'opencv_highgui',
                  'png', 'jpeg', 'jasper', 'tiff',
                  'vl',
-                 'protoc',
+                 'protoc', 'protobuf',
+                 'pthread',
                  'rt',
                  'boost_system-mt'])
 
@@ -44,6 +45,7 @@ env.Append(LIBS = ['sift_lib',
                    'boost_filesystem-mt',
                    'boost_thread-mt',
                    'boost_system-mt',
+                   'pthread',
                    'vl',
                    'png',
                    'jpeg',
@@ -68,6 +70,7 @@ if int(static):
     static_env.Alias('install', binary_prefix)
 else:
     shared_env = env.Clone()
+    shared_env.Append(LIBS = ['pthread'])
     shared_obj = \
         shared_env.Object('extract_descriptors_cli',
                           'extract_descriptors_cli.cc')

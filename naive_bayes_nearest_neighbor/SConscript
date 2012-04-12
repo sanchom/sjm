@@ -3,6 +3,6 @@ Import('test_env')
 
 test_env = test_env.Clone()
 test_env.Append(LIBPATH = ['#sift'])
-test_env.Append(LIBS = ['sift_lib', 'flann'])
+test_env.Append(LIBS = ['sift_lib', 'flann', 'protobuf'])
 test_env.Program('nbnn_classifier_test.cc')
 test_env.Program('merged_classifier_test.cc')

@@ -21,7 +21,9 @@ extern "C" {
 
 namespace sjm {
   namespace sift {
+    const float VlFeatExtractor::magnif_ = 6.0f;
     const int VlFeatExtractor::minimum_bin_size_;
+
     VlFeatExtractor::VlFeatExtractor(const cv::Mat & image,
                                      ExtractionParameters parameters) {
       set_image(image);

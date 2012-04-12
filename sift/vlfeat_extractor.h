@@ -45,7 +45,7 @@ namespace sjm {
       //      3. As a consequence, a DSIFT descriptor with bin size
       //      equal to 5 corresponds to a SIFT keypoint of scale
       //      5/3=1.66.
-      static const float magnif_ = 6.0f;
+      static const float magnif_;
     };
   } // namespace sift
 } // namespace sjm

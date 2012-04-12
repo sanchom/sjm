@@ -17,7 +17,7 @@ else:
    env.Append(CCFLAGS = ['-g', '-O0'])
 if int(profile):
    env.Append(CCFLAGS = ['-pg'], LINKFLAGS=['-pg'])
-env.Append(CCFLAGS = ['-std=c++0x'])
+env.Append(CCFLAGS = ['-std=c++0x', '-pedantic'])
 env.Append(LIBPATH = [libpaths, sjm_deps])
 env.Append(CPPPATH = [sjm_deps])
 env.Append(LIBS = ['glog', 'gflags'])
@@ -56,5 +56,3 @@ SConscript([
       'naive_bayes_nearest_neighbor/experiment_3/SConscript',
       'util/SConscript',
       ])
-
-env.Command("uninstall", None, Delete(FindInstalledFiles()))
