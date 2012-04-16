@@ -1,7 +1,6 @@
 Import('env')
 
 env = env.Clone()
-env.Append(CCFLAGS = ['-std=c++0x'])
 env.Append(LIBS = ['flann', 'sift_lib', 'boost_system-mt',
                    'boost_filesystem-mt', 'protobuf', 'pthread'])
 env.Program('experiment_1.cc')

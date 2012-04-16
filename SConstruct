@@ -1,9 +1,5 @@
 import os
 
-libpaths = []
-if os.environ.has_key("LIBRARY_PATH"):
-   libpaths.extend(os.environ["LIBRARY_PATH"].split(":"))
-
 sjm_deps = ['#', '#sift', '#util', '#codebooks', '#spatial_pyramid',
             '#naive_bayes_nearest_neighbor']
 
@@ -18,7 +14,7 @@ else:
 if int(profile):
    env.Append(CCFLAGS = ['-pg'], LINKFLAGS=['-pg'])
 env.Append(CCFLAGS = ['-std=c++0x', '-pedantic'])
-env.Append(LIBPATH = [libpaths, sjm_deps])
+env.Append(LIBPATH = [sjm_deps])
 env.Append(CPPPATH = [sjm_deps])
 env.Append(LIBS = ['glog', 'gflags'])
 

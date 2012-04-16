@@ -18,10 +18,10 @@ BUILDING
 
 First, install all of the dependencies listed above and note where their headers and libraries are installed to.
 
-Then, clone this repository to your local machine: `git clone git@github.com:sanchom/sjm_ubc.git`
+Then, clone this repository to your local machine: `git clone git@github.com:sanchom/sjm.git`
 
 Add the root directory of the repository to your `$PYTHONPATH` environment variable.
-Something like this: `export PYTHONPATH=~/sjm_ubc:$PYTHONPATH`. You can put that in your `.bash_profile`.
+Something like this: `export PYTHONPATH=~/sjm:$PYTHONPATH`. You can put that in your `.bash_profile`.
 
 You'll also need to update the environment variables `$LIBRARY_PATH` and `$CPLUS_INCLUDE_PATH` to contain the
 directories where the dependencies were installed to. The Scons build script will use these environment variables
@@ -49,6 +49,76 @@ USING
 
 NBNN and Local NBNN Experiments
 -------------------------------
+This section explains how to run the experiments described in
+[_Local Naive Bayes Nearest Neighbor for Image Classification_]().
+
+### Preparing the image dataset
+
+1. Download the [Caltech 101 Dataset](http://www.vision.caltech.edu/Image_Datasets/Caltech101/).
+2. Extract the files: `tar -xvzf 101_ObjectCategories.tar.gz`. This should give you a directory called
+`101_ObjectCategories` with 102 sub-directories, one for each of the 101 object categories and one background
+category.
+3. Resize the images to have a maximum width or height of 300 pixels, with preserved aspect ratio. To do this,
+I use ImageMagick's `mogrify` command: `mogrify -verbose -resize 300x300 101_ObjectCategories/*/*.jpg`. According
+to the ImageMagick documentation, this uses a Mitchell filter if an image is enlarged to 300x300, or a Lanczos
+filter if the image is shrunk to 300x300.
+
+### Extracting the SIFT features
+
+I wrote a command line tool that you installed above called `extract_descriptors_cli`, but the Python wrapper around
+that is more convenient to use. Change directories to `sjm/naive_bayes_nearest_neighbor/experiment_1` and run this:
+
+    python extract_caltech.py --dataset_path=[path_to_your_101_Categories_directory] \
+    --process_limit [num_processes_to_spawn] --sift_normalization_threshold 2.0 --sift_discard_unnormalized \
+    --sift_grid_type FIXED_3X3 --sift_first_level_smoothing 0.66 --sift_fast --sift_multiscale \
+    --features_directory [path_for_extracted_features]
+
+This will extract multi-scale SIFT at 4 scales, with a small amount of additional smoothing applied at the first level.
+Features are extracted at each level on a 3x3 pixel grid. The first level features are 16x16, and increase by a factor
+of 1.5 at each level. This also discards features that from low contrast regions
+(`--sift_normalization_threshold 2.0 --sift_discard_unnormalized`).
+
+Now, you should have a directory structure at `path_for_extracted_features` that mirrors that at
+`path_to_your_101_Categories`, but with `.sift` files instead of `.jpeg` files.
+
+### Running standard NBNN
+
+The code to train and test standard NBNN is in `sjm/naive_bayes_nearest_neighbor/experiment_1`.
+
+1. Change to the `sjm/naive_bayes_nearest_neighbor/experiment_1` directory.
+2. Create a `101_categories.txt` file that lists all the 101 object categories (not BACKGROUND_Google). We ignore
+the background class as suggested by the dataset creators:
+http://authors.library.caltech.edu/7694/1/CNS-TR-2007-001.pdf
+3. Run this:
+
+    ./experiment_1 --category_list 101_categories.txt
+    --features_directory [path_for_extracted_features]
+    --alpha [alpha] --trees [trees] --checks [checks]
+    --results_file [results_file] --logtostderr
+
+In our experiments, we fixed alpha=1.5, trees=4, and varied the checks variable depending on the particular experiment
+we were performing, but for optimal performance, checks should be greater than 128 (see Figure 4 from our paper).
+
+### Running Local NBNN
+
+The code to train and test local NBNN is in `sjm/naive_bayes_nearest_neighbor/experiment_3`.
+
+1. Change to the `sjm/naive_bayes_nearest_neighbor/experiment_1` directory.
+2. Create a `101_categories.txt` file that lists all the 101 object categories (not BACKGROUND_Google). We ignore
+the background class as suggested by the dataset creators:
+http://authors.library.caltech.edu/7694/1/CNS-TR-2007-001.pdf
+3. Run this:
+
+    ./experiment_3 --category_list 101_categories.txt
+    --features_directory [path_for_extracted_features]
+    --alpha [alpha] --trees [trees] --checks [checks]
+    --k [k]
+    --num_test [num_test] --num_train [num_train]
+    --results_file [results_file] --logtostderr
+
+In our experiments, we fixed alpha=1.5, trees=4, and varied k and checks depending on the experiment.
+For optimal results, checks should be above 1024 (see Figure 4 from our paper), and k should be around 10-20
+(see Figure 3 from our paper).
 
 Spatial Pyramid Experiments
 ---------------------------
