@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 
-#include <boost/filesystem.hpp>
-#include <boost/foreach.hpp>
+#include "boost/filesystem.hpp"
+#include "boost/foreach.hpp"
 
 #include "gflags/gflags.h"
 #include "glog/logging.h"
@@ -24,6 +24,10 @@ DEFINE_double(alpha, 0,
               "The location weighting.");
 DEFINE_string(results_file, "results.txt",
               "The destination of our results.");
+DEFINE_int32(num_train, 15,
+             "The number of training images per class.");
+DEFINE_int32(num_test, 15,
+             "The number of test images per class.");
 DEFINE_int32(trees, 4,
              "The number of trees to use in the FLANN index.");
 DEFINE_int32(checks, 1,
@@ -46,9 +50,6 @@ int main(int argc, char** argv) {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   std::srand(std::time(NULL));
-
-  int num_train = 15;
-  int max_num_test = 15;
 
   CHECK(!FLAGS_category_list.empty()) << "--category_list is required.";
   vector<string> categories;
@@ -75,11 +76,12 @@ int main(int argc, char** argv) {
         file_list.push_back(it->path().string());
       }
     }
-    int num_test = std::min(static_cast<int>(file_list.size() - num_train),
-                            max_num_test);
+    int num_test =
+        std::min(static_cast<int>(file_list.size() - FLAGS_num_train),
+                 FLAGS_num_test);
     std::random_shuffle(file_list.begin(), file_list.end());
     vector<string> train_list;
-    for (size_t j = 0; j < num_train; ++j) {
+    for (int j = 0; j < FLAGS_num_train; ++j) {
       train_list.push_back(file_list[j]);
     }
     // Count the data size.
@@ -124,7 +126,7 @@ int main(int argc, char** argv) {
     classifier.AddClass(categories[i], index);
 
     vector<string> test_list;
-    for (size_t j = num_train; j < num_train + num_test; ++j) {
+    for (int j = FLAGS_num_train; j < FLAGS_num_train + num_test; ++j) {
       test_list.push_back(file_list[j]);
     }
     testing_files[categories[i]] = test_list;
