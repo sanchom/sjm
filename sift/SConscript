@@ -31,7 +31,8 @@ test_env.Append(LIBS =
                  'protoc', 'protobuf',
                  'pthread',
                  'rt',
-                 'boost_system-mt'])
+                 'boost_system-mt',
+                 'boost_filesystem-mt'])
 
 test_env.Program('vlsift_test.cc')
 test_env.Program('sift_util_test.cc')

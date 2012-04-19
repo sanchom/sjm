@@ -1,29 +1,20 @@
-#pragma once
+// Copyright 2011 Sancho McCann
+// Author: Sancho McCann
+
+#ifndef UTIL_UTIL_H_
+#define UTIL_UTIL_H_
 
 #include <cstdlib>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
-#include <iostream>
-#include <boost/algorithm/string.hpp>
-#include <boost/function.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
+
+#include "boost/algorithm/string.hpp"
 
 #include "glog/logging.h"
 
 namespace sjm {
-/*!
-  Just some utility functions I use a lot in my code
-*/
 namespace util {
-// Returns true if filename exists
-inline bool fexists(const char * const filename) {
-  std::ifstream ifile(filename);
-  return ifile;
-}
 
 inline void SplitStringUsing(
     const std::string& input, const std::string& separators,
@@ -94,64 +85,6 @@ void AppendStringToFileOrDie(const std::string& filename,
   CHECK_EQ(source.size(), fwrite(source.data(), 1, source.size(), f));
   CHECK_EQ(0, fclose(f));
 }
-    /*!
-      Checks whether or not a given extension is in a list of extensions
-      
-      @param extension the exension query
-      @param extensionList the list of valid extensions
-      @return bool returns true if the given extension is valid
-    */
-    inline bool extensionCheck(const std::string & extension, const std::set<std::string> & extensionList)
-    {
-      return extensionList.find(boost::algorithm::to_lower_copy(extension)) != extensionList.end();
-    }
+}}  // End namespaces sjm, util
 
-    /*!
-      Applies a function that operates on a file to the given file.
-
-      @param func the void function object that takes a file path as a parameter
-      @param filePath a file path
-    */
-    inline void applyFunctionToFile(boost::function1<void, const boost::filesystem::path&> func, const boost::filesystem::path & filePath)
-    {
-      func(filePath);
-    }
-
-    /*!  Takes a function that operates on a file and applies it to
-      any files in a given path hierarchy with valid extensions.
-
-      @param func the void function object that takes a file path as a parameter
-      @param filePath a file path
-      @param validExtensions the set of extensions that func can operate on
-      @param recursive flag to cause recursive call of this function with any directories found in filePath
-    */
-    inline void recursiveFunctionApplication(boost::function1<void, const boost::filesystem::path&> func,
-					     const boost::filesystem::path & filePath,
-					     const std::set<std::string> & validExtensions,
-					     bool recursive)
-    {
-      if ( boost::filesystem::exists(filePath) )
-	{
-	  if ( boost::filesystem::is_directory(filePath) )
-	    {
-	      if ( recursive )
-		{
-		  boost::filesystem::directory_iterator dit(filePath);
-		  boost::filesystem::directory_iterator end;
-
-		  for ( ; dit != end; ++dit )
-		    {
-		      recursiveFunctionApplication(func, *dit, validExtensions, recursive);
-		    }
-		}
-	    }
-	  else if ( extensionCheck(boost::filesystem::extension(filePath), validExtensions) )
-	    {
-	      applyFunctionToFile(func, filePath);
-	    } // end if-else directory/file check
-	} // end if file exists
-    } // end recursive function application
-
-
-  } // end namespace util
-} // end namespace sjm
+#endif  // UTIL_UTIL_H_

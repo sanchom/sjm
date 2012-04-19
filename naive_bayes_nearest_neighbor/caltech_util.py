@@ -16,10 +16,6 @@ from sift import sift_util
 class CaltechUtilError(Exception):
     """ Base class for errors in the caltech_util module """
 
-class FoldIdError(CaltechUtilError):
-    """ Raise when requesting a training/testing fold that isn't available. """
-    pass
-
 class TestSizeError(CaltechUtilError):
     """ Raise when requesting too much testing data. """
     pass
@@ -109,48 +105,6 @@ def split_into_train_test_random(file_list, num_train=None, num_test=None):
     selected = random.sample(file_list, num_train + num_test)
     return (selected[:num_train], selected[num_train:])
 
-def split_into_train_test(file_list, num_train=None, num_test=None, fold_id=0):
-    """ Splits the file_list into a set of training and testing files.
-
-    Returns a pair of lists (training_files, testing_files)
-
-    Keywords arguments:
-    num_train -- the number of files to use for training
-    num_test -- the number of files to use for testing
-    fold_id -- id of the fold of cross validation for which to produce
-    this split
-
-    This doesn't perform a split as per traditional k-fold cross
-    validation, as the Caltech101 dataset doesn't have enough data for
-    this purpose. Instead, it simply ensures that training sets
-    produces by different fold_ids are disjoint, and randomly chooses
-    from among the remaining files to form the test set. Thus, in
-    categories with a small number of data files, there may be
-    significant over- lap in the test sets produced under different
-    fold_ids.
-    """
-    if num_train > len(file_list):
-        raise TrainSizeError('num_train=%d is larger than len(file_list)=%d' %
-                             (num_train, len(file_list)))
-
-    sorted_list = sorted(file_list)
-    train_start = fold_id * num_train
-    train_end = train_start + num_train
-    if train_end > len(file_list):
-        raise FoldIdError('fold_id=%d is too large for this file_list' % fold_id)
-
-    train_list = sorted_list[train_start:train_end]
-    test_candidates = list(set(sorted_list) - set(train_list))
-    if num_test > len(test_candidates):
-        raise TestSizeError('num_test=%d is larger than number '
-                            'of test files available' % num_test)
-    test_list = random.sample(test_candidates, num_test)
-
-    return (sorted_list[train_start:train_end], test_list)
-
-# TODO(sanchom): We need to check existing output against the
-# requested parameters.  If the output already matches the requested
-# parameters, then we shouldn't do the extraction.
 def do_extraction(extraction_tuple):
     """ Extracts sift from an image to a directory with given parameters.
 

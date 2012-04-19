@@ -35,8 +35,6 @@ DEFINE_int32(brx, boost::numeric::bounds<int32_t>::highest(),
              "The bottom right x coordinate of the extraction subwindow.");
 DEFINE_int32(bry, boost::numeric::bounds<int32_t>::highest(),
              "The bottom right y coordinate of the extraction subwindow.");
-DEFINE_bool(recursive, false,
-            "Turns on recursive image search on the input directory.");
 DEFINE_double(normalization_threshold, 0.0,
               "SIFT descriptors with contrast below this are not normalized.");
 DEFINE_double(minimum_radius, 0,
@@ -72,13 +70,6 @@ using std::set;
 using std::string;
 using std::vector;
 
-void extractDescriptorsFromFile(
-    const fs::path & imagePath,
-    const sift::ExtractionParameters & parameters,
-    bool clobber,
-    const string & outputDirectoryName,
-    sift::Extractor * extractor);
-
 int main(int argc, char** argv) {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
   google::InitGoogleLogging(argv[0]);
@@ -95,23 +86,6 @@ int main(int argc, char** argv) {
   sift_parameters.set_fractional_xy(FLAGS_fractional_location);
   sift_parameters.set_smoothed(FLAGS_smooth);
   sift_parameters.set_fast(FLAGS_fast);
-
-  // From OpenCv documentation: these are the
-  // file types that cvLoadImage can handle
-  set<string> validExtensions;
-  validExtensions.insert(".bmp");
-  validExtensions.insert(".dib");
-  validExtensions.insert(".jpeg");
-  validExtensions.insert(".jpg");
-  validExtensions.insert(".jpe");
-  validExtensions.insert(".png");
-  validExtensions.insert(".pbm");
-  validExtensions.insert(".pgm");
-  validExtensions.insert(".ppm");
-  validExtensions.insert(".sr");
-  validExtensions.insert(".ras");
-  validExtensions.insert(".tiff");
-  validExtensions.insert(".tif");
 
   for (int i = 1; i < argc; ++i) {
     input_paths.push_back(argv[i]);
@@ -153,72 +127,34 @@ int main(int argc, char** argv) {
   sift_parameters.set_implementation(sjm::sift::ExtractionParameters::VLFEAT);
   extractor = new sift::VlFeatExtractor(cv::Mat(), sift_parameters);
 
-  // Do the extractions
-  // ------------------
+  // Doing the extractions.
   vector<string>::const_iterator it = input_paths.begin();
   for ( ; it != input_paths.end(); ++it ) {
-    sjm::util::recursiveFunctionApplication(
-        boost::bind(
-            extractDescriptorsFromFile,
-            _1,
-            sift_parameters,
-            FLAGS_clobber,
-            boost::ref(FLAGS_output_directory),
-            extractor),
-        *it, validExtensions, FLAGS_recursive);
-  }
+    LOG(INFO) << "Processing " << *it << ".";
+    fs::path sift_path = fs::change_extension(*it, ".sift");
+    if (FLAGS_output_directory.size() > 0) {
+      // Change output path to include user-specified output directory.
+      sift_path =
+          fs::path(FLAGS_output_directory) / fs::path(sift_path.leaf());
+    }
 
+    // Being careful about overwriting already existing data.
+    if (!fs::exists(sift_path) || FLAGS_clobber) {
+      // The "0" for the second argument forces greyscale loading.
+      cv::Mat cv_image = cv::imread(*it, 0);
+      if (cv_image.data != NULL) {
+        extractor->set_image(cv_image);
+        sift::DescriptorSet descriptor_set = extractor->Extract();
+        sift::WriteDescriptorSetToFile(descriptor_set, sift_path.string());
+        LOG(INFO) << "Wrote " << sift_path.string() << ".";
+      } else {
+        LOG(ERROR) << "Error loading file.";
+      }
+    } else {
+      LOG(INFO) << sift_path.string() << " already exists.";
+    }
+  }
   delete(extractor);
 
   return 0;
-}
-
-/*!
-  \addtogroup extractdescriptors
-  @{
-  Extracts sift descriptors from an input image and writes them to an output file.
-
-
-  @param imagePath the location of the input image
-  @param parameters parameters dictating the options of the sift extraction
-  @param clobber flag to force overwrite of a possibly already existing output file
-
-  @param outputDirectoryName indicates an alternate directory to write
-  the sift file to... if this string is 0-length, the output will be
-  written in the same directory as the input image
-
-  @}
-*/
-void extractDescriptorsFromFile(
-    const fs::path & imagePath,
-    const sift::ExtractionParameters & parameters,
-    bool clobber,
-    const string & outputDirectoryName,
-    sift::Extractor * extractor) {
-  cv::Mat cvImage;
-
-  LOG(INFO) << "Processing " << imagePath.string() << ".";
-
-  fs::path descriptorPath = fs::change_extension(imagePath, ".sift");
-  if (outputDirectoryName.size() > 0) {
-    // Change output path to include user-specified output directory.
-    descriptorPath =
-        fs::path(outputDirectoryName) / fs::path(descriptorPath.leaf());
-  }
-
-  // Being careful about overwriting already existing data.
-  if (!fs::exists(descriptorPath) || clobber) {
-    cvImage = cv::imread(imagePath.string(), 0);  // Force greyscale loading.
-    if (cvImage.data != NULL) {
-      // Passing the cvImage in a way that allows wrapping in a GIL image view.
-      extractor->set_image(cvImage);
-      sift::DescriptorSet descriptorSet = extractor->Extract();
-      LOG(INFO) << "Wrote " << descriptorPath.string() << ".";
-      sift::WriteDescriptorSetToFile(descriptorSet, descriptorPath.string());
-    } else {
-      LOG(ERROR) << "Error loading file.";
-    }
-  } else {
-    LOG(INFO) << descriptorPath.string() << " already exists.";
-  }
 }

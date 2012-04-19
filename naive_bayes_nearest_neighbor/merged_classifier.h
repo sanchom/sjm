@@ -116,8 +116,13 @@ class MergedClassifier {
   }
 
   void BuildIndex() {
-    // First, truncate the data to the actual usage. This unfortunately
-    // requires allocating additional memory, just to get rid of memory.
+    // First, truncate the data to the actual usage. This
+    // unfortunately requires allocating additional memory, just to
+    // get rid of memory.
+    //
+    // TODO(sanchom): Use realloc here, but it's complicated because
+    // the Matrix object holds pointers to and info about the
+    // allocated memory.
     flann::Matrix<uint8_t>* truncated_matrix =
         new flann::Matrix<uint8_t>(new uint8_t[data_size_ * data_dimensions_],
                                    data_size_, data_dimensions_);

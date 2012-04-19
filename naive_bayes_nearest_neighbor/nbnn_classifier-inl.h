@@ -83,7 +83,7 @@ Result NbnnClassifier<IndexType>::Classify(
           descriptor_set.sift_descriptor(0), alpha_, destination);
   delete[] destination;
   // Set up the data for the batch query.
-  // First, create a temp array for up to as many descriptors as 100%.
+  // First, create a temp array for up to 100% of the descriptors.
   uint8_t* temp =
       new uint8_t[descriptor_set.sift_descriptor_size() * dimensions];
   // Put a subsample of the data into the temp array.
@@ -112,25 +112,33 @@ Result NbnnClassifier<IndexType>::Classify(
                              next_matrix_index,
                              dimensions);
 
-  // Check for each class, the distances to it, and record it in the
-  // accumulator.
+  // NN query Result matrices.
   flann::Matrix<int> nn_index(new int[batch_query.rows * nearest_neighbors_],
                               batch_query.rows, nearest_neighbors_);
   flann::Matrix<float> dists(new float[batch_query.rows * nearest_neighbors_],
                              batch_query.rows, nearest_neighbors_);
-  // Shuffle the order in which the classes are queried.
+  // Shuffle the order in which the classes are queried. This does not
+  // affect the results, but is important for avoiding resource
+  // contention when this is run in parallel and IndexType is a
+  // connection to a FLANN server.
   std::vector<std::string> query_ordering = class_list_;
   std::random_shuffle(query_ordering.begin(), query_ordering.end());
+  // This is the implmentation of the NBNN algorithm.
   for (size_t i = 0; i < query_ordering.size(); ++i) {
-    IndexType* index = indices_.find(query_ordering[i])->second;
-    index->knnSearch(
+    IndexType* class_index = indices_.find(query_ordering[i])->second;
+    // For all query descriptors, find their nearest neighbor(s) in
+    // this class_index.
+    class_index->knnSearch(
         batch_query, nn_index, dists, nearest_neighbors_,
         flann::SearchParams(checks_));
+    // Total up the squared distances from each query descriptor to
+    // their nearest neighbors in this class.
     for (size_t j = 0; j < dists.rows; ++j) {
-      // This scales down the distance to be as if the original values
-      // had been in [0,1] instead of in [0,127]. Useful in order to
-      // avoid overflow errors in some of the probability estimate
-      // models. (16129 = 127 * 127)
+      // This scaling is necessary because descriptor values are
+      // stored in [0,127] (for space savings), so we divide the
+      // distance squared (dists[j][0]) by 127^2. This avoids
+      // overflows if these distances are later used in probability
+      // estimate models.
       float distance_squared = dists[j][0] / 16129.0;
       distance_totals[query_ordering[i]] += distance_squared;
     }

@@ -5,12 +5,18 @@
 #include <fstream>
 #include <string>
 
+#include "boost/filesystem.hpp"
+
 #include "glog/logging.h"
 
 #include "sift/sift_descriptors.pb.h"
 #include "util/util.h"
 
-using namespace std;
+using std::ifstream;
+using std::ios;
+using std::ios_base;
+using std::ofstream;
+using std::string;
 
 namespace sjm {
 namespace sift {
@@ -49,8 +55,8 @@ void ReadParametersFromFile(const std::string &filename,
 void ReadDescriptorSetFromFile(const std::string &filename,
                                sjm::sift::DescriptorSet *descriptors) {
   string expanded_filename = sjm::util::expand_user(filename);
-  CHECK(sjm::util::fexists(expanded_filename.c_str())) << expanded_filename <<
-      " doesn't exist.";
+  CHECK(boost::filesystem::exists(expanded_filename.c_str())) <<
+      expanded_filename << " doesn't exist.";
   ifstream input_file(expanded_filename.c_str());
   int parameter_size;
   input_file.read((char*)&parameter_size, sizeof(parameter_size));
@@ -85,4 +91,4 @@ int ConvertProtobufDescriptorToWeightedArray(
   }
   return dimensions;
 }
-}} // namespaces
+}}  // namespaces
