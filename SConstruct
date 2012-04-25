@@ -1,7 +1,6 @@
 import os
 
-sjm_deps = ['#', '#sift', '#util', '#codebooks', '#spatial_pyramid',
-            '#naive_bayes_nearest_neighbor']
+sjm_deps = ['#', '#sift', '#util', '#naive_bayes_nearest_neighbor']
 
 env = Environment(ENV = os.environ)
 
@@ -44,9 +43,7 @@ Export('env')
 Export('test_env')
 
 SConscript([
-      'codebooks/SConscript',
       'sift/SConscript',
-      'spatial_pyramid/SConscript',
       'naive_bayes_nearest_neighbor/SConscript',
       'naive_bayes_nearest_neighbor/experiment_1/SConscript',
       'naive_bayes_nearest_neighbor/experiment_3/SConscript',

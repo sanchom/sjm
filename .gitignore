@@ -1,0 +1,9 @@
+*.o
+*_pb2.py
+.sconsign.dblite
+*_cli
+*_test
+*.pb.h
+*.pb.cc
+*.a
+*~
