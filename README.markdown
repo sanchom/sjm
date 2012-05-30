@@ -122,7 +122,7 @@ http://authors.library.caltech.edu/7694/1/CNS-TR-2007-001.pdf
     --alpha [alpha] --trees [trees] --checks [checks]
     --results_file [results_file] --logtostderr
 
-In our experiments, we fixed alpha=1.5, trees=4, and varied the checks variable depending on the particular experiment
+In our experiments, we fixed alpha=1.6, trees=4, and varied the checks variable depending on the particular experiment
 we were performing, but for optimal performance, checks should be greater than 128 (see Figure 4 from our paper).
 
 ### Running Local NBNN
