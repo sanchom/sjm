@@ -31,6 +31,7 @@
 #include <vector>
 
 #include "boost/algorithm/string.hpp"
+#include "boost/thread.hpp"
 
 #include "glog/logging.h"
 
@@ -110,6 +111,31 @@ void AppendStringToFileOrDie(const std::string& filename,
 template<typename T>
 inline bool HasKey(const T& keyed_collection, const typename T::key_type& key) {
   return keyed_collection.find(key) != keyed_collection.end();
+}
+
+inline void PollForAvailablePoolSpace(
+    int thread_limit, int ms_wait, std::vector<boost::thread*>* thread_pool) {
+  while (static_cast<int>(thread_pool->size()) >= thread_limit) {
+    for (std::vector<boost::thread*>::iterator thread_it = thread_pool->begin();
+         thread_it != thread_pool->end();
+         ++thread_it) {
+      if ((*thread_it)->timed_join(boost::posix_time::milliseconds(ms_wait))) {
+        delete (*thread_it);
+        thread_pool->erase(thread_it);
+        break;
+      }
+    }
+  }
+}
+
+inline void JoinWithPool(std::vector<boost::thread*>* thread_pool) {
+  for (std::vector<boost::thread*>::iterator thread_it = thread_pool->begin();
+       thread_it != thread_pool->end();
+       ++thread_it) {
+    (*thread_it)->join();
+    delete (*thread_it);
+  }
+  thread_pool->clear();
 }
 
 }}  // End namespaces sjm, util
