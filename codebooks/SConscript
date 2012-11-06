@@ -1,0 +1,33 @@
+Import('test_env')
+Import('env')
+
+binary_prefix = ARGUMENTS.get('BIN_PREFIX', '/usr/local/bin/')
+
+protobuf_env = env.Clone()
+protobuf_env.ProtoCc('dictionary.proto')
+protobuf_env.ProtoH('dictionary.proto')
+
+library_env = env.Clone()
+library_env.Append(
+    LIBS = [
+        'protoc',
+        'boost_filesystem-mt',
+        'boost_system-mt',
+        'flann'])
+library_env.StaticLibrary(
+    'codebooks_lib',
+    ['dictionary.pb.cc',
+     'codebook_builder.cc'])
+
+test_env = test_env.Clone()
+test_env.Append(LIBS = ['sift_lib', 'codebooks_lib', 'protoc',
+                        'boost_filesystem-mt', 'boost_system-mt', 'protobuf',
+                        'flann'])
+test_env.Program('codebook_test.cc')
+
+env = env.Clone()
+env.Append(LIBS = ['boost_system-mt', 'boost_filesystem-mt', 'codebooks_lib',
+                   'protoc', 'flann', 'pthread', 'protobuf', 'sift_lib'])
+prog = env.Program(['codebook_cli.cc'])
+env.Install(binary_prefix, prog)
+env.Alias('install', binary_prefix)
