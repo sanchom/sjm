@@ -223,3 +223,18 @@ SIFT every 8 pixels. If you use SCALED_BIN_WIDTH without the `--sift_multiscale`
 SIFT every 4 pixels. If you use SCALED_DOUBLE_BIN_WIDTH _with_ `--sift_multiscale`, you'll get 3 scales of SIFT,
 with the lowest scale being every 8 pixels. If you use SCALED_BIN_WIDTH with `--sift_multiscale`, you'll get 3
 scales of SIFT with the lowest scale being every 4 pixels.
+
+### Inspecting the algorithm
+
+There isn't a single place to point you to if you'd like to inspect the algorithm. Spatially Local Coding
+is simply building multiple codebooks, each taking location into account to a different degree.
+Then instead of building a spatial pyramid, just build a bag-of-words histogram for each of those codebooks and
+concatenate them. That is the model for an image.
+
+The approximate k-means clustering is implemented at: [`CodebookBuilder::ClusterApproximately`](https://github.com/sanchom/sjm/blob/master/codebooks/codebook_builder.cc#L170)
+
+Spatial pyramid construction, including the option for coding across more than a single dictionary is implemented at: [`SpatialPyramidBuilder::BuildPyramid`](https://github.com/sanchom/sjm/blob/master/spatial_pyramid/spatial_pyramid_builder.cc#L132)
+
+The SPM kernels can be inspected at [https://github.com/sanchom/sjm/blob/master/spatial_pyramid/spatial_pyramid_kernel.cc].
+
+Our traininer wrapper for extensive cross-validation and one-vs-all SVM training is at [https://github.com/sanchom/sjm/blob/master/spatial_pyramid/trainer_cli.cc].
