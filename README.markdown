@@ -151,3 +151,75 @@ Inspecting the algorithms
 The NBNN algorithm is implemented in [`NbnnClassifier::Classify`](https://github.com/sanchom/sjm/blob/master/naive_bayes_nearest_neighbor/nbnn_classifier-inl.h#L92)
 
 The Local NBNN algorithm is implemented in [`MergedClassifier::Classify`](https://github.com/sanchom/sjm/blob/master/naive_bayes_nearest_neighbor/merged_classifier.h#L166)
+
+Spatially Local Coding experiments
+----------------------------------
+This section explains how to run the experiments described in
+_Spatially Local Coding for Object Recognition_.
+
+### Preparing the image dataset
+
+(This is the same process as for the NBNN and Local NBNN experiments above.)
+
+1. Download the [Caltech 101 Dataset](http://www.vision.caltech.edu/Image_Datasets/Caltech101/).
+2. Extract the files: `tar -xvzf 101_ObjectCategories.tar.gz`. This should give you a directory called
+`101_ObjectCategories` with 102 sub-directories, one for each of the 101 object categories and one background
+category.
+3. Resize the images to have a maximum width or height of 300 pixels, with preserved aspect ratio. To do this,
+I use ImageMagick's `mogrify` command: `mogrify -verbose -resize 300x300 101_ObjectCategories/*/*.jpg`. According
+to the ImageMagick documentation, this uses a Mitchell filter if an image is enlarged to 300x300, or a Lanczos
+filter if the image is shrunk to 300x300.
+
+### Running Localized Soft Assignment SPM
+
+Assume that your Caltech directory is at [caltechdir], you are storing extracted features in [featuredir]
+and results in [resultdir].
+
+    rm -f /tmp/*.svm; rm -rf [featuredir]; \
+    python baseline_experiment.py --dataset_path=[caltechdir] --work_directory=[resultdir] --clobber \
+    --sift_normalization_threshold=2.0 --sift_discard_unnormalized \
+    --sift_grid_type=FIXED_8X8 --sift_first_level_smoothing=0.66 --features_directory=[featuredir] \
+    --process_limit=[num_processes] --num_train=[num_train] --num_test=15 --codeword_locality=10 --pooling=MAX_POOLING \
+    --dictionary_training_size=1000000 --clobber_dictionary --pyramid_levels=3 --kmeans_accuracy=0.9 \
+    --dictionary=[dictionary_size]:0 --kernel=[intersection|linear]
+
+What makes this Localized Soft Assignment SPM is: `--codeword_locality=10 --pooling=MAX_POOLING --pyramid_levels=3`.
+
+### Running Standard SPM
+
+    rm -f /tmp/*.svm; rm -rf [featuredir]; \
+    python baseline_experiment.py --dataset_path=[caltechdir] --work_directory=[resultdir] --clobber \
+    --sift_normalization_threshold=2.0 --sift_discard_unnormalized \
+    --sift_grid_type=FIXED_8X8 --sift_first_level_smoothing=0.66 --features_directory=[featuredir] \
+    --process_limit=[num_processes] --num_train=[num_train] --num_test=15 --codeword_locality=1 --pooling=AVERAGE_POOLING \
+    --dictionary_training_size=1000000 --clobber_dictionary --pyramid_levels=3 --kmeans_accuracy=0.9 \
+    --dictionary=[dictionary_size]:0 --kernel=[intersection|linear]
+
+What makes this Standard SPM is: `--codeword_locality=1 --pooling=AVERAGE_POOLING --pyramid_levels=3`.
+
+### Running Spatially Local Coding
+
+    rm -f /tmp/*.svm; rm -rf [featuredir]; \
+    python baseline_experiment.py --dataset_path=[caltechdir] --work_directory=[resultdir] --clobber \
+    --sift_normalization_threshold=2.0 --sift_discard_unnormalized \
+    --sift_grid_type=FIXED_8X8 --sift_first_level_smoothing=0.66 --features_directory=[featuredir] \
+    --process_limit=[num_processes] --num_train=[num_train] --num_test=15 --codeword_locality=10 --pooling=MAX_POOLING \
+    --dictionary_training_size=1000000 --clobber_dictionary --pyramid_levels=1 --kmeans_accuracy=0.9 \
+    --dictionary=[dictionary_size]:0 --dictionary=[dictionary_size]:0.75 \
+    --dictionary=[dictionary_size]:1.5 --dictionary=[dictionary_size]:3.00 --kernel=linear
+
+What makes this Spatially Local Coding is: `--codeword_locality=10`, `--pooling=MAX_POOLING`, `--pyramid_levels=1`,
+and `--dictionary=[dictionary_size]:0`, `--dictionary=[dictionary_size]:0.75`,
+`--dictionary=[dictionary_size]:1.5`, `--dictionary=[dictionary_size]:3.00`. The values after [dictionary_size] are
+the location weightings to use for each dictionary.
+
+### Changing the extraction settings
+
+If you are using Caltech 256, pass the `--caltech256` flag.
+
+You can use other `--sift_grid_type`s to get different extraction densities.
+FIXED_8X8 without the `--sift_multiscale` flag extracts singlescale
+SIFT every 8 pixels. If you use SCALED_BIN_WIDTH without the `--sift_multiscale` flag, you'll get singlescale
+SIFT every 4 pixels. If you use SCALED_DOUBLE_BIN_WIDTH _with_ `--sift_multiscale`, you'll get 3 scales of SIFT,
+with the lowest scale being every 8 pixels. If you use SCALED_BIN_WIDTH with `--sift_multiscale`, you'll get 3
+scales of SIFT with the lowest scale being every 4 pixels.
