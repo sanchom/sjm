@@ -1,0 +1,51 @@
+Import('test_env')
+Import('env')
+
+binary_prefix = ARGUMENTS.get('BIN_PREFIX', '/usr/local/bin/')
+
+protobuf_env = env.Clone()
+protobuf_env.ProtoCc('spatial_pyramid.proto')
+protobuf_env.ProtoH('spatial_pyramid.proto')
+protobuf_env.ProtoPy('spatial_pyramid.proto')
+
+test_env = test_env.Clone()
+test_env.Append(LIBS = [
+        'sift_lib',
+        'codebooks_lib',
+        'protoc',
+        'flann',
+        'boost_thread-mt',
+        'spatial_pyramid_lib'])
+test_env.Program(['spatial_pyramid_test.cc'])
+
+library_env = env.Clone()
+library_env.Append(LIBS = [
+        'protoc',
+        'boost_system-mt',
+        'boost_thread-mt',
+        'flann'])
+library_env.StaticLibrary(
+    'spatial_pyramid_lib',
+    ['spatial_pyramid.pb.cc',
+     'spatial_pyramid_builder.cc',
+     'spatial_pyramid_kernel.cc',
+     'svm/svm.cpp'])
+
+env = env.Clone()
+env.Append(LIBS = [
+        'codebooks_lib',
+        'spatial_pyramid_lib',
+        'sift_lib',
+        'pthread',
+        'boost_system-mt',
+        'boost_filesystem-mt',
+        'boost_thread-mt',
+        'flann',
+        'protoc', 'protobuf'
+        ])
+env.Program(['spatial_pyramid_cli.cc'])
+
+trainer = env.Program(['trainer_cli.cc'])
+validate = env.Program(['validate_cli.cc'])
+env.Install(binary_prefix, [trainer, validate])
+env.Alias('install', binary_prefix)
