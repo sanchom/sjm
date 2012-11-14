@@ -38,6 +38,16 @@ DEPENDENCIES
   - Google Protocol Buffers (protoc) [http://code.google.com/p/protobuf/]
 - SCons build system [http://www.scons.org/]
 
+Google Protocol Buffers
+-----------------------
+I use Google Protocol Buffers for a lot of datatypes (Spatial Pyramids, SIFT descriptors, codebooks, etc.).
+They are a "language-neutral, platform-neutral, extensible mechanism for serializing structured data".
+They allow me to simply define my datatype, and provide a uniform interface for getting/setting values,
+initializing with default values, serializing, saving/reading, etc.
+
+While you may see `#include 'sift/sift_descriptors.pb.h'`, that file is not actually in the source. Instead,
+you should inspect `sift/sift_descriptors.proto`, which is the protocol buffer specification and gets compiled to
+`sift/sift_descriptors.pb.h` and `sift/sift_descriptors.pb.cc` during the build.
 
 BUILDING
 ========
@@ -235,6 +245,6 @@ The approximate k-means clustering is implemented at: [`CodebookBuilder::Cluster
 
 Spatial pyramid construction, including the option for coding across more than a single dictionary is implemented at: [`SpatialPyramidBuilder::BuildPyramid`](https://github.com/sanchom/sjm/blob/master/spatial_pyramid/spatial_pyramid_builder.cc#L132)
 
-The SPM kernels can be inspected at [https://github.com/sanchom/sjm/blob/master/spatial_pyramid/spatial_pyramid_kernel.cc].
+The SPM kernels can be inspected at [`spatial_pyramid_kernel.cc`](https://github.com/sanchom/sjm/blob/master/spatial_pyramid/spatial_pyramid_kernel.cc).
 
-Our traininer wrapper for extensive cross-validation and one-vs-all SVM training is at [https://github.com/sanchom/sjm/blob/master/spatial_pyramid/trainer_cli.cc].
+Our trainer wrapper for extensive cross-validation and one-vs-all SVM training is at [`trainer_cli.cc`](https://github.com/sanchom/sjm/blob/master/spatial_pyramid/trainer_cli.cc).
