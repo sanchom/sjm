@@ -9,13 +9,13 @@ protobuf_env.ProtoH('spatial_pyramid.proto')
 protobuf_env.ProtoPy('spatial_pyramid.proto')
 
 test_env = test_env.Clone()
+test_env.Prepend(LIBS = ['sift_lib',
+                         'codebooks_lib',
+			 'spatial_pyramid_lib'])
 test_env.Append(LIBS = [
-        'sift_lib',
-        'codebooks_lib',
         'protoc',
         'flann',
-        'boost_thread-mt',
-        'spatial_pyramid_lib'])
+        'boost_thread-mt'])
 test_env.Program(['spatial_pyramid_test.cc'])
 
 library_env = env.Clone()
@@ -32,10 +32,11 @@ library_env.StaticLibrary(
      'svm/svm.cpp'])
 
 env = env.Clone()
-env.Append(LIBS = [
+env.Prepend(LIBS = [
         'codebooks_lib',
         'spatial_pyramid_lib',
-        'sift_lib',
+        'sift_lib'])
+env.Append(LIBS = [
         'pthread',
         'boost_system-mt',
         'boost_filesystem-mt',

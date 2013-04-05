@@ -20,14 +20,15 @@ library_env.StaticLibrary(
      'codebook_builder.cc'])
 
 test_env = test_env.Clone()
-test_env.Append(LIBS = ['sift_lib', 'codebooks_lib', 'protoc',
-                        'boost_filesystem-mt', 'boost_system-mt', 'protobuf',
+test_env.Prepend(LIBS = ['sift_lib', 'codebooks_lib'])
+test_env.Append(LIBS = ['protoc', 'boost_filesystem-mt',
+                        'boost_system-mt', 'protobuf',
                         'flann'])
 test_env.Program('codebook_test.cc')
 
 env = env.Clone()
-env.Append(LIBS = ['boost_system-mt', 'boost_filesystem-mt', 'codebooks_lib',
-                   'protoc', 'flann', 'pthread', 'protobuf', 'sift_lib'])
+env.Append(LIBS = ['sift_lib', 'boost_system-mt', 'boost_filesystem-mt', 'codebooks_lib',
+                   'protoc', 'flann', 'pthread', 'protobuf'])
 prog = env.Program(['codebook_cli.cc'])
 env.Install(binary_prefix, prog)
 env.Alias('install', binary_prefix)

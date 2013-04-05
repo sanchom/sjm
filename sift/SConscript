@@ -22,9 +22,9 @@ library_env.StaticLibrary('sift_lib',
                    'sift_util.cc',
                    'sift_descriptors.pb.cc'])
 
+test_env.Prepend(LIBS = ['sift_lib'])
 test_env.Append(LIBS =
-                ['sift_lib',
-                 'opencv_imgproc',
+                ['opencv_imgproc',
 		 'opencv_core', 'opencv_highgui',
                  'png', 'jpeg', 'jasper', 'tiff',
                  'vl',
@@ -37,9 +37,8 @@ test_env.Append(LIBS =
 test_env.Program('vlsift_test.cc')
 test_env.Program('sift_util_test.cc')
 
-
-env.Append(LIBS = ['sift_lib',
-		   'opencv_imgproc',
+env.Prepend(LIBS = ['sift_lib'])
+env.Append(LIBS = ['opencv_imgproc',
                    'opencv_core', 'opencv_highgui',
                    'protobuf',
                    'boost_program_options-mt',
