@@ -1,6 +1,6 @@
 Import('env')
 
 env = env.Clone()
-env.Append(LIBS = ['flann', 'sift_lib', 'boost_system-mt',
-                   'boost_filesystem-mt', 'protobuf', 'pthread'])
+env.Append(LIBS = ['flann', 'sift_lib', 'boost_system',
+                   'boost_filesystem', 'protobuf', 'pthread'])
 env.Program('experiment_3.cc')

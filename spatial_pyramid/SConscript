@@ -15,14 +15,14 @@ test_env.Prepend(LIBS = ['sift_lib',
 test_env.Append(LIBS = [
         'protoc',
         'flann',
-        'boost_thread-mt'])
+        'boost_thread'])
 test_env.Program(['spatial_pyramid_test.cc'])
 
 library_env = env.Clone()
 library_env.Append(LIBS = [
         'protoc',
-        'boost_system-mt',
-        'boost_thread-mt',
+        'boost_system',
+        'boost_thread',
         'flann'])
 library_env.StaticLibrary(
     'spatial_pyramid_lib',
@@ -38,9 +38,9 @@ env.Prepend(LIBS = [
         'sift_lib'])
 env.Append(LIBS = [
         'pthread',
-        'boost_system-mt',
-        'boost_filesystem-mt',
-        'boost_thread-mt',
+        'boost_system',
+        'boost_filesystem',
+        'boost_thread',
         'flann',
         'protoc', 'protobuf'
         ])

@@ -31,8 +31,8 @@ test_env.Append(LIBS =
                  'protoc', 'protobuf',
                  'pthread',
                  'rt',
-                 'boost_system-mt',
-                 'boost_filesystem-mt'])
+                 'boost_system',
+                 'boost_filesystem'])
 
 test_env.Program('vlsift_test.cc')
 test_env.Program('sift_util_test.cc')
@@ -41,10 +41,10 @@ env.Prepend(LIBS = ['sift_lib'])
 env.Append(LIBS = ['opencv_imgproc',
                    'opencv_core', 'opencv_highgui',
                    'protobuf',
-                   'boost_program_options-mt',
-                   'boost_filesystem-mt',
-                   'boost_thread-mt',
-                   'boost_system-mt',
+                   'boost_program_options',
+                   'boost_filesystem',
+                   'boost_thread',
+                   'boost_system',
                    'pthread',
                    'vl',
                    'png',

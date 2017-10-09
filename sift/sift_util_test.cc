@@ -74,7 +74,7 @@ TEST_F(SiftUtilTest, CanWriteFile) {
   sjm::sift::WriteDescriptorSetToFile(descriptors_, filename_);
   // Checks that the file exists by seeing if we can open it.
   ifstream test_file(filename_.c_str());
-  ASSERT_TRUE(test_file);
+  ASSERT_TRUE(test_file.is_open());
 }
 
 TEST_F(SiftUtilTest, SavedFileContainsParameters) {
