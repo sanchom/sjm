@@ -39,9 +39,9 @@ This is an example of how you could use it.
     docker run --rm -v `pwd`:`pwd` -w `pwd` sanchom/phd-environment scons
 
 This puts the repository on your local machine. Then, it grabs the docker image that has the build
-environment all set up. The `docker run` command does a few things. By using `-v ``pwd``:``pwd```,
+environment all set up. The `docker run` command does a few things. By using ``-v `pwd`:`pwd```,
 docker attaches the current directory (the `sjm` repository) to an identical path inside the
-container. `-w ``pwd``` makes the container start with that path as the working directory. `scons` is
+container. ``-w `pwd``` makes the container start with that path as the working directory. `scons` is
 the command that builds everything. It runs inside the container, but produces binaries in that directory
 that was just attached with `-v`, so the build output will be visible to you on your host machine and
 persistant across container launches.
