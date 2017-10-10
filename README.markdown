@@ -61,6 +61,18 @@ Features are extracted at each level on a 3x3 pixel grid. The first level featur
 of 1.5 at each level. This also discards features that from low contrast regions
 (`--sift_normalization_threshold 2.0 --sift_discard_unnormalized`).
 
+If you're using docker, the command should look something like this:
+
+    docker run --rm -v `pwd`:`pwd` -v [path_to_your_101_Categories_directory]:/images \
+        -v [destination_path_for_extracted_features]:/features -w `pwd`/naive_bayes_nearest_neighbor/experiment_1 \
+	-e PYTHONPATH=`pwd` sanchom/phd-environment \
+	python extract_caltech.py --dataset_path=/images --process_limit=4 --sift_normalization=2.0 \
+	--sift_discard_unnormalized --sift_grid_type FIXED_3X3 --sift_first_level_smoothing 0.66 --sift_fast \
+	--sift_multiscale --features_directory=/features
+
+Just like the `mogrify` docker command, this does the work in the environment of the container, but reads
+and writes to your local directories that you attached using the `-v` flags.
+
 Now, you should have a directory structure at `path_for_extracted_features` that mirrors that at
 `path_to_your_101_Categories`, but with `.sift` files instead of `.jpeg` files.
 
@@ -86,7 +98,7 @@ we were performing, but for optimal performance, checks should be greater than 1
 
 The code to train and test local NBNN is in `sjm/naive_bayes_nearest_neighbor/experiment_3`.
 
-1. Change to the `sjm/naive_bayes_nearest_neighbor/experiment_1` directory.
+1. Change to the `sjm/naive_bayes_nearest_neighbor/experiment_3` directory.
 2. Create a `101_categories.txt` file that lists all the 101 object categories (not BACKGROUND_Google). We ignore
 the background class as suggested by the dataset creators:
 http://authors.library.caltech.edu/7694/1/CNS-TR-2007-001.pdf
@@ -98,6 +110,13 @@ http://authors.library.caltech.edu/7694/1/CNS-TR-2007-001.pdf
     --k [k]
     --num_test [num_test] --num_train [num_train]
     --results_file [results_file] --logtostderr
+
+3a. Or, using docker:
+
+    docker run --rm -v `pwd`:`pwd` -v [path_to_extracted_features]:/features \
+        -w `pwd` sanchom/phd-environment ./naive_bayes_nearest_neighbor/experiment_3/experiment_3 \
+	--k [k] --category_list 101_categories.txt --features_directory /features \
+	--alpha [alpha] --trees [trees] --checks [checks] --results_file [results_file] --logtostderr
 
 In our experiments, we fixed alpha=1.6, trees=4, and varied k and checks depending on the experiment.
 For optimal results, checks should be above 1024 (see Figure 4 from our paper), and k should be around 10-20

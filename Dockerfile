@@ -19,7 +19,7 @@ RUN apt-get update && apt install -y \
     cmake -DBUILD_SHARED_LIBS=ON . && \
     make && \
     mv libg* /usr/lib/ && \
-    pip install numpy
+    pip install numpy protobuf
 
 RUN wget http://www.vlfeat.org/download/vlfeat-0.9.20-bin.tar.gz && \
     tar -xvzf vlfeat-0.9.20-bin.tar.gz && \

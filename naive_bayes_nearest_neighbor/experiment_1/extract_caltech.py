@@ -30,6 +30,8 @@ from naive_bayes_nearest_neighbor import caltech_util
 from sift import sift_descriptors_pb2
 from sift import sift_util
 
+os.environ['PATH'] += ':' + os.path.abspath(__file__ + '/../../../bin')
+
 def main():
     parser = OptionParser()
     # This option points to the root directory of the image
