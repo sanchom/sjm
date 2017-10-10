@@ -35,8 +35,7 @@ This is an example of how you could use it.
 
     git clone https://github.com/sanchom/sjm.git
     cd sjm
-    docker pull sanchom/phd-environment
-    docker run --rm -v `pwd`:`pwd` -w `pwd` sanchom/phd-environment scons
+    docker run --rm -v `pwd`:`pwd` -w `pwd` sanchom/phd-environment scons install `pwd`/bin
 
 This puts the repository on your local machine. Then, it grabs the docker image that has the build
 environment all set up. The `docker run` command does a few things. By using ``-v `pwd`:`pwd` ``,
@@ -44,7 +43,8 @@ docker attaches the current directory (the `sjm` repository) to an identical pat
 container. ``-w `pwd` `` makes the container start with that path as the working directory. `scons` is
 the command that builds everything. It runs inside the container, but produces binaries in that directory
 that was just attached with `-v`, so the build output will be visible to you on your host machine and
-persistant across container launches.
+persistant across container launches. After this command finishes and the docker container exits, you'll
+the build products in `sjm/bin`.
 
 USING
 =====
@@ -64,6 +64,13 @@ category.
 I use ImageMagick's `mogrify` command: `mogrify -verbose -resize 300x300 101_ObjectCategories/*/*.jpg`. According
 to the ImageMagick documentation, this uses a Mitchell filter if an image is enlarged to 300x300, or a Lanczos
 filter if the image is shrunk to 300x300.
+
+To do this using docker, you can use this ImageMagick image. This
+overwrites the extracted Caltech 101 dataset with the resized
+versions:
+
+    docker run --rm -v [absolute_path_to_101_ObjectCategories]:/images acleancoder/imagemagick-full \
+        bash -c "mogrify -verbose -resize 300x300 /images/*/*.jpg"
 
 ### Extracting the SIFT features
 
