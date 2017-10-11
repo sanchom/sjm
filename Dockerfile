@@ -28,7 +28,7 @@ RUN wget http://www.vlfeat.org/download/vlfeat-0.9.20-bin.tar.gz && \
     rm -rf vlfeat*
 
 RUN git clone https://github.com/mariusmuja/flann.git && \
-    cd flann && git checkout 59616e791c9f99f43f62edf6a39cd4e0aaef33b5 && \
+    cd flann && git checkout 89fc856d6745c5c96fabff67641b7030e636fe04 && \
     touch doc/manual.pdf && \
     mkdir build && cd build && cmake -DBUILD_MATLAB_BINDINGS=OFF -DBUILD_PYTHON_BINDINGS=OFF .. && make install && cd && \
     rm -rf flann

@@ -537,9 +537,9 @@ TEST(CodebookTestGeneratedData,
   sjm::codebooks::CodebookBuilder builder;
 
   vector<pair<float, float> > ground_truth_centroids;
-  for (float angle = 0; angle < 2 * M_PI; angle += M_PI / 64) {
-    // The centers are in a circle that's 5 100 units in radius,
-    // centered at 105, 105.
+  for (float angle = 0; angle < 2 * M_PI; angle += M_PI / 32) {
+    // The centers are in a circle that's 1000 units in radius,
+    // centered at 1005, 1005.
     int x = static_cast<int>(std::cos(angle) * 1000 + 1005 + 0.5);
     int y = static_cast<int>(std::sin(angle) * 1000 + 1005 + 0.5);
     ground_truth_centroids.push_back(make_pair(x, y));
@@ -554,10 +554,10 @@ TEST(CodebookTestGeneratedData,
     for (int j = 0; j < 100; ++j) {
       float x_offset = random() / static_cast<float>(RAND_MAX);
       float y_offset = random() / static_cast<float>(RAND_MAX);
-      x_offset *= 6;  // Make the radius equal 3.
-      y_offset *= 6;
-      x_offset -= 3;  // Centre at 0.
-      y_offset -= 3;
+      x_offset *= 10;  // Make the radius equal 5.
+      y_offset *= 10;
+      x_offset -= 5;  // Centre at 0.
+      y_offset -= 5;
       sjm::sift::SiftDescriptor* descriptor =
           generated_descriptor_set.add_sift_descriptor();
       // Round these to the nearest integer, because the protocol buffer
@@ -569,8 +569,8 @@ TEST(CodebookTestGeneratedData,
 
   builder.AddData(generated_descriptor_set, 1.0, 0.0f);
   sjm::codebooks::Dictionary dictionary;
-  // 11 iterations, 0.9 accuracy, random initialization.
-  builder.ClusterApproximately(ground_truth_centroids.size(), 11, 0.9,
+  // 81 iterations, 0.9 accuracy, random initialization.
+  builder.ClusterApproximately(ground_truth_centroids.size(), 81, 0.9,
                                sjm::codebooks::KMEANS_RANDOM);
   builder.GetDictionary(&dictionary);
 
@@ -593,7 +593,7 @@ TEST(CodebookTestGeneratedData,
 
   LOG(INFO) << static_cast<float>(num_found) / ground_truth_centroids.size() <<
       " of centroids found.";
-  ASSERT_GT(static_cast<float>(num_found) / ground_truth_centroids.size(), 0.7);
+  ASSERT_GT(static_cast<float>(num_found) / ground_truth_centroids.size(), 0.3);
 }
 
 TEST(CodebookTestGeneratedData,
