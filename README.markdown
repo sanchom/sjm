@@ -105,7 +105,7 @@ The Local NBNN algorithm is implemented in
 
 This section is being rewritten, but if you're curious, look in the
 raw text of this
-[README](https://github.com/sanchom/sjm/blob/master/README.markdown)
+[README](https://raw.githubusercontent.com/sanchom/sjm/master/README.markdown)
 file for a section that's been commented out.
 
 <!--
