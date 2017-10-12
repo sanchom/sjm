@@ -37,6 +37,9 @@ import time
 from naive_bayes_nearest_neighbor import caltech_util
 from sift import sift_descriptors_pb2
 
+os.environ['PATH'] += ':' + os.path.abspath(__file__ + '/../../codebooks')
+os.environ['PATH'] += ':' + os.path.abspath(__file__ + '/../../spatial_pyramid')
+
 def main():
     parser = OptionParser()
     # This option points to the root directory of the image

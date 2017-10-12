@@ -34,6 +34,8 @@ import sys
 from sift import sift_descriptors_pb2
 from sift import sift_util
 
+os.environ['PATH'] += ':' + os.path.abspath(__file__ + '/../../sift')
+
 class CaltechUtilError(Exception):
     """ Base class for errors in the caltech_util module """
 
