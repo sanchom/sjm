@@ -101,7 +101,7 @@ For optimal results, checks should be above 1024 (see Figure 4 from our paper), 
 The Local NBNN algorithm is implemented in
 [`MergedClassifier::Classify`](https://github.com/sanchom/sjm/blob/master/naive_bayes_nearest_neighbor/merged_classifier.h#L166)
 
-<--
+<!--
 # Spatially Local Coding
 
 This section explains how to run the experiments described in
